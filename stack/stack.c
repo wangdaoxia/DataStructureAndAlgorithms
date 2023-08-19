@@ -23,12 +23,13 @@ typedef struct Stack
 } Stack;
 // 运算符
 const char OPERATOR[7]="+-*/()";
+// 运算符优先级
 const int PRIOIRITY[6][6] = {
 /*        +   -   *   /   (   )  */
-/* + */ { 1,  1, -1, -1, -1,  1 },
-/* - */ { 1,  1, -1, -1, -1,  1 },
-/* * */ { 1,  1,  1,  1, -1,  1 },
-/* / */ { 1,  1,  1,  1, -1,  1 },
+/* + */ { 0,  0, -1, -1, -1,  1 },
+/* - */ { 0,  0, -1, -1, -1,  1 },
+/* * */ { 1,  1,  0,  0, -1,  1 },
+/* / */ { 1,  1,  0,  0, -1,  1 },
 /* ( */ {-1, -1, -1, -1, -1,  0 },
 /* ) */ { 1,  1,  1,  1,  0,  1 }
 };
@@ -152,7 +153,7 @@ char* InorderToPostorder(char* _expr_inorder)
             }
             else
            { 
-            while(CompareOperatorPriority(*expr,stack->top->data)==-1)
+            while(IsOperator(stack->top->data)&&CompareOperatorPriority(*expr,stack->top->data)!=1)
             {
                 char temp=Pop(stack);
                 *post_order_result=temp;
