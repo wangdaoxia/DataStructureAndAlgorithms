@@ -21,6 +21,17 @@ typedef struct Stack
 {
     StackNode* top;
 } Stack;
+// 运算符
+const char OPERATOR[7]="+-*/()";
+const int PRIOIRITY[6][6] = {
+/*        +   -   *   /   (   )  */
+/* + */ { 1,  1, -1, -1, -1,  1 },
+/* - */ { 1,  1, -1, -1, -1,  1 },
+/* * */ { 1,  1,  1,  1, -1,  1 },
+/* / */ { 1,  1,  1,  1, -1,  1 },
+/* ( */ {-1, -1, -1, -1, -1,  0 },
+/* ) */ { 1,  1,  1,  1,  0,  1 }
+};
 
 Stack *InitStack();//初始化栈顶指针
 void DestroyStack(Stack *_stack);//释放内存
@@ -30,12 +41,13 @@ char Pop(Stack *_stack);//弹出栈顶元素
 char* InorderToPostorder(char* _expr_inorder);//中序表达式转成后序表达式
 int IsNumber(char _data);//判断是否为数字
 int IsOperator(char _data);//判断是否为运算符
+int OperatorToIndex(char _operator);//将运算符与索引进行对应
 // int Priority(char x);//判断运算符优先级
 // StackNode *Middle_to_Pre(StackNode *S);//将中序表达式转为前序表达式
 // StackNode *Middle_to_Post(StackNode *S);//将中序表达式转为后序表达式
 // StackNode *Stack_Reverse(StackNode *S);//栈的翻转
 // int Middle_Order_Result(char *s);//计算中序表达式的值
-// int Two_Operator_Priority(char a,char b);//运算符优先级，a在左，b在右，优先级高输出2，相同输出1，优先级小输出0
+int CompareOperatorPriority(char a,char b);//运算符优先级，a在左，b在右，优先级高输出2，相同输出1，优先级小输出0
 // int Operation(int a,int b,char c);//执行运算，b是左侧数据，a是右侧数据
 
 int main(int argc,const char* argv[])
@@ -106,9 +118,9 @@ char Pop(Stack *_stack)//弹出栈顶元素
 
 char* InorderToPostorder(char* _expr_inorder)
 {
+    //初始化运算符栈
     Stack *stack=InitStack();
     char* expr=_expr_inorder;
-    int len=strlen(expr)+1;
     char* result=(char*)malloc(strlen(expr)+1);
     char* post_order_result=result;
     while(*expr!='#')
@@ -118,21 +130,36 @@ char* InorderToPostorder(char* _expr_inorder)
             *post_order_result=*expr;
             post_order_result++;
         }
+        else if(*expr=='(')
+        {
+            Push(stack,*expr);
+        }
+        else if(*expr==')')
+        {
+            while(stack->top->data!='(')
+            {
+                char temp=Pop(stack);
+                *post_order_result=temp;
+                post_order_result++;
+            }
+            Pop(stack);
+        }
         else if(IsOperator(*expr))
         {
-            if(*expr!=')')
+            if(stack->top->data=='(')
             {
                 Push(stack,*expr);
             }
             else
+           { 
+            while(CompareOperatorPriority(*expr,stack->top->data)==-1)
             {
-                while(stack->top->data!='(')
-                {
-                    char temp=Pop(stack);
-                    *post_order_result=temp;
-                    post_order_result++;
-                }
-                Pop(stack);
+                char temp=Pop(stack);
+                *post_order_result=temp;
+                post_order_result++;
+            }
+            // if(CompareOperatorPriority(*expr,stack->top->data)!=0)
+            Push(stack,*expr);
             }
         }
         else
@@ -375,82 +402,30 @@ int IsOperator(char _data)
 // }
 
 
-// int Two_Operator_Priority(char a,char b)//运算符优先级，a在左，b在右，优先级高输出2，相同输出1，优先级小输出0
-// {
-//     int c=0;
-//     switch(a)
-//     {
-//         case ')':
-//             switch (b)
-//             {
-//             case '(':
-//                 a=1;
-//                 break;
-//             default:
-//                 break;
-//             }
-//             break;
-//         case '(':
-//             switch (b)
-//             {
-//             case ')':
-//                 a=1;
-//                 break;
-//             case '#':
-//                 a=-1;
-//                 break;
-//             default:
-//                 break;
-//             }
-//             break;
-//         case '*':
-//             switch (b)
-//             {
-//             case '(':
-//                 break;           
-//             default:
-//                 a=2;
-//                 break;
-//             }
-//             break;
-//         case '/':
-//             switch (b)
-//             {
-//             case '(':
-//                 break;
-//             default:
-//                 a=2;
-//                 break;
-//             }
-//             break;
-//         case '+':
-//             switch (b)
-//             {
-//             case '*':
-//                 break;
-//             case '/':
-//                 break;
-//             case '(':
-//                 break;
-//             default:
-//                 a=2;
-//                 break;
-//             }
-//             break;
-//         case '-':
-//             switch (b)
-//             {
-//             case '*':
-//                 break;
-//             case '/':
-//                 break;
-//             case '(':
-//                 break;
-//             default:
-//                 a=2;
-//                 break;
-//             }
-//             break;
-//     }
-//     return a;
-// }
+int CompareOperatorPriority(char a,char b)//运算符优先级，a在左，b在右
+{
+    int left_index=OperatorToIndex(a);
+    int right_index=OperatorToIndex(b);
+    return PRIOIRITY[left_index][right_index];
+}
+
+int OperatorToIndex(char _operator)
+{
+    switch (_operator)
+    {
+    case '+':
+        return 0;
+    case '-':
+        return 1;
+    case '*':
+        return 2;
+    case '/':
+        return 3;
+    case '(':
+        return 4;
+    case ')':
+        return 5;
+    default:
+        return -1;
+    }
+}
