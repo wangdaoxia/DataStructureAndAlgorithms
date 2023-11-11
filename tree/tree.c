@@ -7,15 +7,22 @@ int main(int argc,const char* argv[])
     printf("please input the number of nodes:");
     scanf("%d",&num_of_nodes);
     TreeNode* root=InitTree();
-    int treearray[5]={1,4,2,3,5};
-    // for(int i=0;i<num_of_nodes;i++)
-    // {
-    //     treearray[i]=i;
-    // }
+    int *treearray=(int*)malloc(sizeof(int)*num_of_nodes);
+    for(int i=0;i<num_of_nodes;i++)
+    {
+        treearray[i]=rand()%20;
+        printf("%d,",treearray[i]);
+    }
+    printf("\n");
     CreateTree(root,treearray,num_of_nodes);
+    printf("前序遍历:\n");
     PreOrderTraverse(root);
+    printf("中序遍历:\n");
     InOrderTraverse(root);
+    printf("后序遍历:\n");
     PostOrderTraverse(root);
+    printf("层序遍历:\n");
+    LevelOrderTraverse(root);
     int depth=DepthOfTree(root);
     printf("depth:%d\n",depth);
     DestroyTree(root);
@@ -159,4 +166,22 @@ void InsertNode(TreeNode* root,int val)
         }
     }
     
+}
+
+void LevelOrderTraverse(TreeNode* root)
+{
+    int in=0;
+    int out=0;
+    TreeNode* tmp[100];
+    tmp[in++]=root;
+    while(in>out)
+    {
+        if(tmp[out])
+        {
+            printf("%d,",tmp[out]->val_);
+            tmp[in++]=tmp[out]->left_;
+            tmp[in++]=tmp[out]->right_;
+        }
+        out++;
+    }
 }

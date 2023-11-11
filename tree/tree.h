@@ -81,6 +81,12 @@ void PostOrderTraverse(TreeNode* root);
  * @param root 
  */
 void InsertNode(TreeNode* root,int val);
+/**
+ * @brief 树的层序遍历
+ * 
+ * @param root 
+ */
+void LevelOrderTraverse(TreeNode* root);
 
 
 
